@@ -85,17 +85,19 @@ print("a10 = np.multiply(a10m, a10v)")
 a10 = np.multiply(a10m, a10v)
 print("Ergebnis: \n", a10)
 
-print("\nk) Erzeugen Sie einen Zufallsmatrix der Größe 10x2, die Sie als Kartesische Koordinaten interpretieren")
+print("\nk) Erzeugen Sie eine Zufallsmatrix der Größe 10x2, die Sie als Kartesische Koordinaten interpretieren")
 print("können ([[x0, y0],[x1, y1],[x2, y2]]).\n")
 print("a11m = np.random.randint(11, size=(10, 2))\n")
 a11m = np.random.randint(11, size=(10, 2))
 print(a11m)
-print("\nKonvertieren Sie diese in Polarkoordinaten https://de.wikipedia.org/wiki/Polarkoordinaten.\n");
+print("\nKonvertieren Sie diese in Polarkoordinaten https://de.wikipedia.org/wiki/Polarkoordinaten.\n")
 print("def cart2pol(a):\n\trho = np.sqrt(a[0]**2 + a[1]**2)\n\tphi = np.arctan2(a[1], a[0])\n\treturn(rho, phi)\n")
+
+
 def cart2pol(a):
     rho = np.sqrt(a[0]**2 + a[1]**2)
     phi = np.arctan2(a[1], a[0])
-    return(rho, phi)
+    return rho, phi
 
 
 print("a11 = np.apply_along_axis(cart2pol, 1, a11m)\n")
@@ -124,7 +126,7 @@ print("\ndef vector_length(vector):\n\treturn math.sqrt(sum(map(lambda x: pow(x,
 
 
 def vector_length(vector):
-    # return math.sqrt(scalar_product(vector, vector))
+    # return math.sqrt(scalar_product(vector, vector))  # same
     return math.sqrt(sum(map(lambda x: pow(x, 2), vector)))
 
 
