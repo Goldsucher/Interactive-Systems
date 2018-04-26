@@ -68,8 +68,8 @@ print("\ni) Erzeugen Sie eine 5x5 Matrix und geben Sie jeweils die geraden und d
 print("a9 = np.random.randint(21, size=(5, 5))")
 a9 = np.random.randint(21, size=(5, 5))
 print(a9)
-print("\nEven (a9[1::2]):\n", a9[1::2])     # even  [1:5:2]
-print("\nOdd  (a9[::2]) :\n", a9[::2])      # odd [0:5:2]
+print("\nEven (a9[1::2]):\n", a9[1::2])     # even [1:5:2]
+print("\nOdd  (a9[::2]) :\n", a9[::2])      # odd  [0:5:2]
 
 print("\nj) Erzeugen Sie eine Matrix M der Größe 4x3 und\n")
 print("a10m = np.random.randint(11, size=(4, 3))\n")
@@ -145,7 +145,10 @@ v1 = np.array([[-1], [2], [5]])
 print("v1:\n", v1)
 m = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [0, 2, 2]])
 print("m:\n", m)
-# x = (v0t * v1) * m
-# print(x)
-# ?????
-# hier weiß ich noch nicht weiter
+
+print("---")
+x = (v0t * v1)
+print(x)
+print("---")
+y = np.matmul(x, m)
+print(y)
