@@ -20,3 +20,4 @@ sobelCombined = cv2.bitwise_or(sobelx, sobely)
 
 cv2.imshow("SobelCombined", sobelCombined)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
