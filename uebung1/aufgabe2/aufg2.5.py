@@ -38,7 +38,6 @@ def calibration():
         x, y, w, h = roi
         dst = dst[y:y + h, x:x + w]
         cv2.imwrite('resources/images/imgCorners.png', imgCorners)
-        cv2.imwrite('resources/images/frame_gray.png', img)
         cv2.imwrite('resources/images/calibresult.png', dst)
 
         return imgCorners
@@ -60,12 +59,6 @@ while(True):
     key = cv2.waitKey(50)
     if key & 0xFF == ord('q'):
         break
-    if key == ord('b'):
-        print("BLUR")
-        blur_flag = not blur_flag
-    if blur_flag:
-        kernel = np.ones((7, 7), np.float32) / 49
-        img = cv2.filter2D(img, -1, kernel)
 
     img = calibration()
 

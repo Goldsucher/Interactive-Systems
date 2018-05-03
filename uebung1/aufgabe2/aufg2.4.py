@@ -1,7 +1,6 @@
 # Diese Code beinhaltet Aufgaben 2.4 vom Übungsblatt 1
 # Stephan Wagner s853668
 
-import numpy as np
 import cv2
 
 cap = cv2.VideoCapture(0)
@@ -55,7 +54,7 @@ while(True):
         # Canny-Edge
         # https://docs.opencv.org/3.1.0/da/d22/tutorial_py_canny.html
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
-        frame = cv2.Canny(frame, 100, 300)
+        frame = cv2.Canny(frame, 100, 200)
 
     # Display the resulting frame
     cv2.imshow('frame', frame)

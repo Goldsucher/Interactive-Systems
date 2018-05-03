@@ -4,22 +4,61 @@
 import numpy as np
 import cv2
 
-def selfMadeGaussianBlur(img):
-    print("do Blur")
-    tmpImg = img
+
+def img2double(img):
+    """
+    Converts uint image (0-255) to double image (0.0-1.0) and generalizes
+    this concept to any range.
+
+    :param im:
+    :return: normalized image
+    """
+    min_val = np.min(img.ravel())
+    max_val = np.max(img.ravel())
+    out = (img.astype('float') - min_val) / (max_val - min_val)
+
+    return out
+
+def make_gaussian_kernel(size, fwhm = 3, center=None):
+    """ Make a square gaussian kernel.
+
+    size is the length of a side of the square
+    fwhm is full-width-half-maximum, which
+    can be thought of as an effective radius.
+    """
+    x = np.arange(0, size, 1, float)
+    y = x[:,np.newaxis]
+
+    if center is None:
+        x0 = y0 = size // 2
+    else:
+        x0 = center[0]
+        y0 = center[1]
+
+    k = np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / fwhm**2)
+    return k / np.sum(k)
+
+
+def convolution_2d(img, kernel):
+    tmpImg = img.copy()
     ysizeTmpImg, xsizeTmpImg = tmpImg.shape
-    kernel = np.matrix('0.0625 0.125 0.0625; 0.125 0.25 0.125; 0.0625 0.125 0.0625')
     ysizeKernel, xsizeKernel = kernel.shape
+    tmpMatrix = np.zeros((xsizeKernel,ysizeKernel))
+
     y=1
     x=1
     for row in tmpImg:
         if(y<ysizeTmpImg-1):
             for pixel in row:
                 if (x < xsizeTmpImg-1):
-                    currentPixel = pixel
-                    tmpMatrix = np.matrix([[tmpImg[y-1][x-1]*kernel[0,0], tmpImg[y-1][x]*kernel[0,1], tmpImg[y-1][x+1]*kernel[0,2]],
-                                          [tmpImg[y][x-1]*kernel[1,0], currentPixel*kernel[1,1], tmpImg[y][x+1]*kernel[1,2]],
-                                         [tmpImg[y+1][x-1]*kernel[2,0], tmpImg[y+1][x]*kernel[2,1], tmpImg[y+1][x+1]*kernel[2,2]]])
+
+                    i = int(np.trunc(xsizeKernel/2))*(-1)
+                    for xTmpMatrix in range(0, int(np.trunc(xsizeKernel/2))+2):
+                        j = int(np.trunc(ysizeKernel / 2)) * (-1)
+                        for yTmpMatrix in range(0, int(np.trunc(ysizeKernel/2))+2):
+                            tmpMatrix[xTmpMatrix][yTmpMatrix] = img[y+i][x+j]*kernel[xTmpMatrix,yTmpMatrix]
+                            j+=1
+                        i+=1
 
                     tmpResultSum = tmpMatrix.sum()
                     tmpImg[y][x] = tmpResultSum
@@ -28,88 +67,31 @@ def selfMadeGaussianBlur(img):
             y+=1
     return tmpImg
 
-def selfMadeSobel(img,x=0, y=0):
-    print("do Sobel")
-    ysizeImg, xsizeImg = img.shape
 
-    tmpImg = img
-    sobelX = np.matrix('1 0 -1;'
-                       '2 0 -2;'
-                       '1 0 -1')
+img_grey_orig = cv2.imread('resources/images/lenna.jpg', 0)
+img_grey = img_grey_orig.copy()
+print("do Blur 3x3")
+img_blurred_3 = convolution_2d(img2double(img_grey),make_gaussian_kernel(3))
+print("do Blur 5x5")
+img_blurred_5 = convolution_2d(img2double(img_grey),make_gaussian_kernel(5))
 
-    sobelY = np.matrix('1 2 1; '
-                       '0 0 0;'
-                       '-1 -2 -1')
+sobelX_kernel = np.matrix('1 0 -1; 2 0 -2; 1 0 -1')
+sobelY_kernel = np.matrix('1 2 1;0 0 0;-1 -2 -1')
 
+print("do Sobel X")
+img_sobelX=convolution_2d(img2double(img_grey),sobelX_kernel)
 
-    #kernel = np.matrix('-3 0 3;'
-    #                   '-10 0 10;'
-    #                   '-3 0 3')
+print("do Sobel Y")
+img_sobelY=convolution_2d(img2double(img_grey),sobelY_kernel)
 
-    y = 1
-    x = 1
-    for row in img:
-        if (y < ysizeImg - 1):
-            for pixel in row:
-                if (x < xsizeImg - 1):
-                    currentPixel = pixel
-                    #print(currentPixel)
-                    tmpMatrixX = np.matrix([[img[y - 1][x - 1] * sobelX[0, 0], img[y - 1][x] * sobelX[0, 1],img[y - 1][x + 1] * sobelX[0, 2]],
-                                           [img[y][x - 1] * sobelX[1, 0], currentPixel * sobelX[1, 1],img[y][x + 1] * sobelX[1, 2]],
-                                           [img[y + 1][x - 1] * sobelX[2, 0], img[y + 1][x] * sobelX[2, 1],img[y + 1][x + 1] * sobelX[2, 2]]])
+print("combine SobelX + SobelY")
+img_magnitude_gradients = np.sqrt(np.power(img_sobelX, 2) + np.power(img_sobelY, 2))
 
-                    tmpMatrixY = np.matrix([[img[y - 1][x - 1] * sobelY[0, 0], img[y - 1][x] * sobelY[0, 1], img[y - 1][x + 1] * sobelY[0, 2]],
-                                           [img[y][x - 1] * sobelY[1, 0], currentPixel * sobelY[1, 1],img[y][x + 1] * sobelY[1, 2]],
-                                           [img[y + 1][x - 1] * sobelY[2, 0], img[y + 1][x] * sobelY[2, 1], img[y + 1][x + 1] * sobelY[2, 2]]])
+img_orig_blurred = np.concatenate((img_grey_orig, img_blurred_3, img_blurred_5), axis=1)
+img_sobel = np.concatenate((img_sobelX, img_sobelY, img_magnitude_gradients), axis=1)
+img_all= np.concatenate((img_orig_blurred, img_sobel), axis=0)
 
-                    tmpMatrix2 = np.matrix([[img[y - 1][x - 1], img[y - 1][x],
-                                             img[y - 1][x + 1] ],
-                                           [img[y][x - 1], currentPixel,
-                                            img[y][x + 1]],
-                                           [img[y + 1][x - 1], img[y + 1][x],
-                                            img[y + 1][x + 1]]])
-
-                    tmpResultSumX = np.sum(tmpMatrixX)
-                    tmpResultSumY = np.sum(tmpMatrixY)
-                    tmpResult = np.ceil(np.sqrt((tmpResultSumX * tmpResultSumX) + (tmpResultSumY * tmpResultSumY)))
-                    tmpImg[y][x] = tmpResult
-                    x += 1
-            x = 0
-            y += 1
-
-    return tmpImg
-
-
-
-
-img_grey = cv2.imread('resources/images/lenna.jpg', 0)
-cv2.imshow("original", img_grey)
-print("show original")
-blurred_img = selfMadeGaussianBlur(img_grey)
-cv2.imshow("Blur", blurred_img)
-print("show blurred")
-sobelx = selfMadeSobel(blurred_img,1,0)
-cv2.imshow("SobelX", sobelx)
-print("show SobelX")
+cv2.imshow("Images", img_all)
+print("Show all Operations")
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-exit()
-sobely = selfMadeSobel(blurred_img,0,1)
-cv2.imshow("SobelY", sobely)
-print("show SobelY")
-
-#https://www.pyimagesearch.com/2016/07/25/convolutions-with-opencv-and-python/
-# https://handmap.github.io/gradients-and-edge-detection/
-#blurred_img = cv2.GaussianBlur(img_grey, (5, 5), 0)
-
-#sobelx = cv2.Sobel(blurred_img,cv2.CV_64F,1,0)
-#sobely = cv2.Sobel(blurred_img,cv2.CV_64F,0,1)
-#sobelx = np.uint8(np.absolute(sobelx))
-#sobely = np.uint8(np.absolute(sobely))
-
-
-#orig_blurred = cv2.bitwise_or(sobelx, sobely)
-#orig_blurred = cv2.bitwise_or(sobelx, sobely)
-
-
-#cv2.imshow("SobelCombined", sobelCombined)
