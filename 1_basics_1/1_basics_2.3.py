@@ -82,8 +82,8 @@ def main():
     cv2.putText(image_blur_gauss, 'blur gauss', (160, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, 0)
 
     # blur mean
-    kernel_test = np.matrix('1 1 1 1 1; 1 1 1 1 1; 1 1 1 1 1; 1 1 1 1 1; 1 1 1 1 1')
-    kernel_mean_blur = np.matrix('1 1 1; 1 1 1; 1 1 1')
+    kernel_mean_blur = np.matrix('1 1 1 1 1; 1 1 1 1 1; 1 1 1 1 1; 1 1 1 1 1; 1 1 1 1 1')
+    # kernel_mean_blur = np.matrix('1 1 1; 1 1 1; 1 1 1')
     image_blur_mean = apply_kernel(cv2.imread('resources/images/lenna.jpg', 0), kernel_mean_blur)
     cv2.putText(image_blur_mean, 'blur mean 5x5', (160, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, 0)
 
