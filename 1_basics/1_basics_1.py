@@ -1,3 +1,8 @@
+# Blatt 1 "1_basics"
+# Aufgabe 1: Linear Algebra und Numpy Basics
+# Steffen Burlefinger (859077)
+
+
 import numpy as np
 
 
@@ -27,7 +32,7 @@ print(d)
 print()
 
 # Aufgabe 1e)
-e = np.random.randint(100, size=(8,8))
+e = np.random.randint(100, size=(8, 8))
 print("Aufgabe 1e:")
 print(e)
 print()
@@ -40,11 +45,11 @@ print(en)
 print()
 
 # Aufgabe 1f)
-f1 = np.random.randint(100, size=(4,3))
+f1 = np.random.randint(100, size=(4, 3))
 print("Aufgabe 1f:")
 print("4x3:")
 print(f1)
-f2 = np.random.randint(100, size=(3,2))
+f2 = np.random.randint(100, size=(3, 2))
 print()
 print("3x2")
 print(f2)
@@ -62,7 +67,7 @@ print(g)
 # negativieren
 gneg = np.negative(g[8:17])
 # negierte Werte einsetzen
-gnew = np.concatenate((g[:8], gneg, g[17:]), axis=0)
+gnew = np.concatenate((g[:8], gneg, g[17:]), axis=0)  # 0 = horizontal, 1 = vertikal
 print("Lösung")
 print(gnew)
 print()
@@ -70,7 +75,7 @@ print()
 # Aufgabe 1h)
 print("Aufgabe 1h:")
 # Array erzeugen
-h = np.random.randint(100, size=(1,20))
+h = np.random.randint(100, size=(1, 20))
 print("Array")
 print(h)
 #Array summieren
@@ -82,7 +87,7 @@ print()
 # Aufgabe 1i)
 print("Aufgabe 1i:")
 # Array erzeugen
-i = np.random.randint(100, size=(5,5))
+i = np.random.randint(100, size=(5, 5))
 print("5x5 Matrix")
 print(i)
 # ungerade Zeilen
@@ -116,7 +121,7 @@ print()
 # https://stackoverflow.com/questions/20924085/python-conversion-between-coordinates
 print("Aufgabe 1k:")
 print("Zufallsmatrix 10 x 2 = Kartesische Koordinaten")
-k = np.random.randint(100, size=(10,2))
+k = np.random.randint(100, size=(10, 2))
 print(k)
 print()
 # X-Koordinaten extrahieren
@@ -138,7 +143,7 @@ for i in range(r.size):
 print()
 print()
 
-# Aufgabe 1l:
+# Aufgabe 1l)
 # https://www.mathebibel.de/skalarprodukt
 print("Aufgabe 1l:")
 # random Länge generieren
@@ -178,7 +183,7 @@ print()
 
 # Aufgabe 1l Test mit vorgegebenen Vektoren:
 print("Aufgabe 1l - Test mit vorgegebenen Vektoren:")
-lv1t = np.array([1, 2, 3, 4 ,5])
+lv1t = np.array([1, 2, 3, 4 , 5])
 lv2t = np.array([-1, 9, 5, 3, 1])
 print("Testvektor 1:")
 print(lv1t)
@@ -205,5 +210,34 @@ testresultlnp = np.dot(lv1t, lv2t)
 print("Skalarprodukt zum Vergleich mit np.dot berechnet:")
 print(testresultlnp)
 print()
+print()
 
 
+# Aufgabe 1m)
+print("Aufgabe 1m:")
+v0 = np.matrix([[1], [1], [0]])
+print("v0:")
+print(v0)
+#v0t = v0.reshape(1, v0.shape[0])
+v0t = v0.T  # transposed
+print()
+print("v0t:")
+print(v0t)
+v1 = np.matrix([[-1], [2], [5]])
+print()
+print("v1:")
+print(v1)
+m = np.matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9], [0, 2, 2]])
+print()
+print("m:")
+print(m)
+#x = v0t.dot(v1)
+#print("(v0t*v1) = ", x)
+#y = m.dot(v1)
+#print("m*v1 = ", y)
+#b = np.multiply(x, y)
+#print("b:", b)
+ak = np.multiply(v0t.dot(v1), m.dot(v1))
+print("\nak = np.multiply(v0t.dot(v1), m.dot(v1))\n")
+print("Ergebnis:")
+print(ak)

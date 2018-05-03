@@ -1,3 +1,8 @@
+# Blatt 1 "1_basics"
+# Aufgabe 2: Computer Vision Basics + OpenCV
+# 2.1 + 2.2
+# Steffen Burlefinger (859077)
+
 import numpy as np
 import cv2
 
@@ -8,7 +13,7 @@ def translation(img, value=10):
     img_translation = cv2.warpAffine(img, translation_matrix, (num_cols, num_rows))
 
     return img_translation
-    #cv2.imshow('Translation', img_translation)
+
 
 def rotation(img, angle=10):
   image_center = tuple(np.array(img.shape[1::-1]) / 2)
@@ -16,6 +21,7 @@ def rotation(img, angle=10):
   img_rotation = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
 
   return img_rotation
+
 
 def prepareGreyImage(img, img_grey):
     i = 0
@@ -30,42 +36,43 @@ def prepareGreyImage(img, img_grey):
 
     return img
 
+
 def mergeImages(img, img2):
 
-    return np.concatenate((img, img2), axis=1) # 1=vertikal 0 = horizontal
+    return np.concatenate((img, img2), axis=1)
 
-# -- MainProgramm ---
+
+
 def main():
-    img_orig = cv2.imread('Lenna.png', 1)  # 1 = farbe, 0 = grau (mittelwert von rgb) und -1 = with alphachannel
-    img2_orig = cv2.imread('Lenna.png', 1)  # 1 = farbe, 0 = grau (mittelwert von rgb) und -1 = with alphachannel
+    img_orig = cv2.imread('Lenna.png', 1)  # 0 = Graustufen, 1 = Farbe, -1 = mit Alphachannel
+    img2_orig = cv2.imread('Lenna.png', 1)
     img_grey = cv2.imread('Lenna.png', 0)
-    #print(img.shape[:2])  # Anzahl Reihe und Spalte
+    # print(img.shape[:2])  # Anzahl Reihe und Spalte
 
     img_grey = prepareGreyImage(img2_orig, img_grey)
     bothImg = mergeImages(img_grey, img_orig)
 
-    #cv2.imwrite('resources/images/lenna_both.png',vis) # save image
 
     translationValue = 0
     rotationValue = 0
-    cv2.imshow('Image', bothImg)
-    while (1):
+    cv2.imshow('Aufgabe 2.1_2.2', bothImg)
+    while True:
         key = cv2.waitKey()
         print(key)
         bothImg = mergeImages(img_grey, img_orig)
-        if key == 113:       #ascii value for q
+        if key == 113:  # ascii
             print('q')
             cv2.destroyAllWindows()
             break
-        elif key == 116:         #ascii value for t
-            translationValue +=10;
+        elif key == 116:
+            translationValue += 10
             bothImg = translation(bothImg, translationValue)
             bothImg = rotation(bothImg, rotationValue)
-            cv2.imshow('Image', bothImg)
-        elif key == 114:    #ascii value for t
-            rotationValue += 10;
+            cv2.imshow('Aufgabe 2.1_2.2', bothImg)
+        elif key == 114:
+            rotationValue += 10
             bothImg = translation(bothImg, translationValue)
             bothImg = rotation(bothImg, rotationValue)
-            cv2.imshow('Image', bothImg)
+            cv2.imshow('Aufgabe 2.1_2.2', bothImg)
 
 main()

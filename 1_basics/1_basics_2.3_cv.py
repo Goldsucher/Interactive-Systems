@@ -1,3 +1,9 @@
+# Blatt 1 "1_basics"
+# Aufgabe 2: Computer Vision Basics + OpenCV
+# 2.3 - Umsetzung mit OpenCV
+# Steffen Burlefinger (859077)
+
+import numpy as np
 import cv2
 
 img_grey = cv2.imread("Lenna.png", 0)
@@ -22,6 +28,9 @@ def getGradientMagnitude(img_blurred):
 
 result = getGradientMagnitude(img_blurred)
 
-cv2.imshow('cv', img_blurred)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+while True:
+    all = np.concatenate((img_grey, img_blurred, result), axis=1)
+    cv2.imshow("Aufgabe 2.3 mit CV", all)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    break
