@@ -1,3 +1,6 @@
+# Diese Code beinhaltet Aufgaben 2.4 vom Übungsblatt 1
+# Stephan Wagner s853668
+
 import numpy as np
 import cv2
 
@@ -37,8 +40,8 @@ def calibration():
         # crop the image
         x, y, w, h = roi
         dst = dst[y:y + h, x:x + w]
-        cv2.imwrite('resources/images/imgCorners.png', imgCorners)
-        cv2.imwrite('resources/images/calibresult.png', dst)
+        cv2.imwrite('resources/images/imgBeforeCalibration.png', imgCorners)
+        cv2.imwrite('resources/images/imgAfterCalibration.png', dst)
 
         return imgCorners
 
@@ -48,8 +51,8 @@ def calibration():
 
 cap = cv2.VideoCapture(0)
 sift = cv2.xfeatures2d.SIFT_create()
-blur_flag = False
 
+mode = 0
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -60,7 +63,14 @@ while(True):
     if key & 0xFF == ord('q'):
         break
 
-    img = calibration()
+    if key & 0xFF == ord('c'):
+        if mode == 1:
+            mode = 0
+        else:
+            mode = 1
+
+    if mode == 1:
+        img = calibration()
 
     cv2.imshow('frame', img)
 

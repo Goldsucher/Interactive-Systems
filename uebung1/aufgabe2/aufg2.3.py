@@ -43,7 +43,7 @@ def convolution_2d(img, kernel):
     tmpImg = img.copy()
     ysizeTmpImg, xsizeTmpImg = tmpImg.shape
     ysizeKernel, xsizeKernel = kernel.shape
-    tmpMatrix = np.zeros((xsizeKernel,ysizeKernel))
+    tmpMatrix = np.zeros((xsizeKernel, ysizeKernel))
 
     y=1
     x=1
@@ -56,7 +56,7 @@ def convolution_2d(img, kernel):
                     for xTmpMatrix in range(0, int(np.trunc(xsizeKernel/2))+2):
                         j = int(np.trunc(ysizeKernel / 2)) * (-1)
                         for yTmpMatrix in range(0, int(np.trunc(ysizeKernel/2))+2):
-                            tmpMatrix[xTmpMatrix][yTmpMatrix] = img[y+i][x+j]*kernel[xTmpMatrix,yTmpMatrix]
+                            tmpMatrix[xTmpMatrix][yTmpMatrix] = img[y+i][x+j] * kernel[xTmpMatrix, yTmpMatrix]
                             j+=1
                         i+=1
 
@@ -67,31 +67,36 @@ def convolution_2d(img, kernel):
             y+=1
     return tmpImg
 
+def main():
+    print("Operations are performed, please wait...")
+    img_grey_orig = cv2.imread('resources/images/lenna.jpg', 0)
+    img_grey = img_grey_orig.copy()
+    print("do Blur 3x3")
+    img_blurred_3 = convolution_2d(img2double(img_grey), make_gaussian_kernel(3))
+    print("do Blur 5x5")
+    img_blurred_5 = convolution_2d(img2double(img_grey), make_gaussian_kernel(5))
 
-img_grey_orig = cv2.imread('resources/images/lenna.jpg', 0)
-img_grey = img_grey_orig.copy()
-print("do Blur 3x3")
-img_blurred_3 = convolution_2d(img2double(img_grey),make_gaussian_kernel(3))
-print("do Blur 5x5")
-img_blurred_5 = convolution_2d(img2double(img_grey),make_gaussian_kernel(5))
+    sobelX_kernel = np.matrix('1 0 -1;2 0 -2; 1 0 -1')
+    sobelY_kernel = np.matrix('1 2 1;0 0 0;-1 -2 -1')
 
-sobelX_kernel = np.matrix('1 0 -1; 2 0 -2; 1 0 -1')
-sobelY_kernel = np.matrix('1 2 1;0 0 0;-1 -2 -1')
+    print("do Sobel X")
+    img_sobelX=convolution_2d(img2double(img_grey), sobelX_kernel)
 
-print("do Sobel X")
-img_sobelX=convolution_2d(img2double(img_grey),sobelX_kernel)
+    print("do Sobel Y")
+    img_sobelY=convolution_2d(img2double(img_grey), sobelY_kernel)
 
-print("do Sobel Y")
-img_sobelY=convolution_2d(img2double(img_grey),sobelY_kernel)
+    print("combine SobelX + SobelY")
+    img_magnitude_gradients = np.sqrt(np.power(img_sobelX, 2) + np.power(img_sobelY, 2))
 
-print("combine SobelX + SobelY")
-img_magnitude_gradients = np.sqrt(np.power(img_sobelX, 2) + np.power(img_sobelY, 2))
+    img_orig_blurred = np.concatenate((img2double(img_grey_orig), img_blurred_3, img_blurred_5), axis=1)
+    img_sobel = np.concatenate((img_sobelX, img_sobelY, img_magnitude_gradients), axis=1)
+    img_all= np.concatenate((img_orig_blurred, img_sobel), axis=0)
 
-img_orig_blurred = np.concatenate((img_grey_orig, img_blurred_3, img_blurred_5), axis=1)
-img_sobel = np.concatenate((img_sobelX, img_sobelY, img_magnitude_gradients), axis=1)
-img_all= np.concatenate((img_orig_blurred, img_sobel), axis=0)
+    cv2.imshow("Images", img_all)
+    print("Show all Operations")
+    print("DONE!")
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-cv2.imshow("Images", img_all)
-print("Show all Operations")
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
+main()

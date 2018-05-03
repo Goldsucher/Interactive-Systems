@@ -41,12 +41,9 @@ def main():
     img_orig = cv2.imread('resources/images/lenna.jpg', 1)  # 1 = farbe, 0 = grau (mittelwert von rgb) und -1 = with alphachannel
     img2_orig = cv2.imread('resources/images/lenna.jpg', 1)
     img_grey = cv2.imread('resources/images/lenna.jpg', 0)
-    #print(img.shape[:2])  # Anzahl Reihe und Spalte
 
     img_grey = prepareGreyImage(img2_orig, img_grey)
     bothImg = mergeImages(img_grey, img_orig)
-
-    #cv2.imwrite('resources/images/lenna_both.jpg',vis) # save image
 
     translationValue = 0;
     rotationValue = 0;
