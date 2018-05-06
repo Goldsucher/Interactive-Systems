@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 
 cap = cv2.VideoCapture(0)
-# cv2.namedWindow('Interactive Systems: Towards AR Tracking')
+cv2.namedWindow('Interactive Systems: Towards AR Tracking')
 
 while True:
 
@@ -24,16 +24,16 @@ while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    img = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # Create a SIFT Object
     sift = cv2.xfeatures2d.SIFT_create()
 
     # Get the Key Points from the 'gray' image, this returns a numpy array
-    kp = sift.detect(gray, None)
+    kp = sift.detect(img, None)
 
     # Now we drawn the gray image and overlay the Key Points (kp)
-    img = cv2.drawKeypoints(gray, kp, None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    img = cv2.drawKeypoints(img, kp, None, flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
 
 
