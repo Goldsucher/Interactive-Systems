@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-from pprint import pprint
 
 
 class ImageStitcher:
