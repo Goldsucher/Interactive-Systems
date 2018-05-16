@@ -8,7 +8,7 @@ import cv2
 
 def calibration():
     # termination criteria
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_M/Users/locke/Google Drive/UNI_MASTER/Semester4/interactive_systems/isy-02/02_features.pyAX_ITER, 30, 0.001)
 
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     objp = np.zeros((6 * 7, 3), np.float32)
