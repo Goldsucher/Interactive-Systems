@@ -1,3 +1,6 @@
+# Diese Code gehört noch zu Aufgabe 2 vom Übungsblatt 2
+# Stephan Wagner s853668
+
 import numpy as np
 import cv2
 
@@ -116,7 +119,7 @@ class ImageStitcher:
             # if not enough matches were found we can't stitch
             # and we break here
             if H is None:
-                print("Not enough machtes tto stitch")
+                print("Not enough machtes to stitch")
                 break
 
             if len(matches) < 200:

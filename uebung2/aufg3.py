@@ -1,3 +1,6 @@
+# Diese Code beinhaltet Aufgabe 3 vom Übungsblatt 2
+# Stephan Wagner s853668
+
 import cv2
 import glob
 import numpy as np
@@ -13,7 +16,6 @@ from queue import PriorityQueue
 
 # implement distance function
 def distance(a, b):
-    # distance = np.sqrt(np.sum(np.square(a-b)))
     return np.linalg.norm(a - b)
 
 
@@ -21,11 +23,9 @@ def create_keypoints(w, h):
     keypoints = []
     keypoint_size = 11   # has to be odd
 
-    # YOUR CODE HERE
     radius = int(keypoint_size/2)
     step = radius*2
 
-    print("building grid...")
     for cx in range(radius, w, step):
         for cy in range(radius, h, step):
             keypoints.append(cv2.KeyPoint(cx, cy, keypoint_size))
@@ -39,11 +39,10 @@ images = glob.glob('./resources/images/database/*/*.jpg')
 # 2. create keypoints on a regular grid (cv2.KeyPoint(r, c, keypointSize), as keypoint size use e.g. 11)
 descriptors = []
 key_points = create_keypoints(256, 256)
-# print(key_points)
 
 # 3. use the keypoints for each image and compute SIFT descriptors
 #    for each keypoint. this compute one descriptor for each image.
-print("calculating descriptors...", end="")
+print("Process is running")
 sift = cv2.xfeatures2d.SIFT_create()
 for img_path in images:
     img = cv2.imread(img_path)
@@ -56,7 +55,6 @@ for img_path in images:
 #    now compress to a single area. Therefore extract the descriptor and
 #    compare the descriptor to each image in the database using the L2-norm
 #    and save the result into a priority queue (q = PriorityQueue())
-print("\nstart img query...")
 result = None
 for query_img_path in ['./resources/images/database/query_face.jpg',
                        './resources/images/database/query_car.jpg',
@@ -64,10 +62,8 @@ for query_img_path in ['./resources/images/database/query_face.jpg',
 
     query_img = cv2.imread(query_img_path)
     gray = cv2.cvtColor(query_img, cv2.COLOR_BGR2GRAY)
-    print("calculating query descriptor...")
     key_points, descriptor = sift.compute(gray, key_points)
 
-    print("calculating distance between query and database images...", end="")
     q = PriorityQueue()
     for img_db in descriptors:
         print(".", end="", flush=True)
@@ -75,7 +71,6 @@ for query_img_path in ['./resources/images/database/query_face.jpg',
         q.put((d, img_db[1]))
 
     # 5. output (save and/or display) the query results in the order of smallest distance
-    print("\nprepare output...")
     imgs = []
     while not q.empty():
         v, img = q.get()
@@ -95,7 +90,7 @@ for query_img_path in ['./resources/images/database/query_face.jpg',
         result = img_left
     else:
         result = np.concatenate((result, img_left), axis=0)
-
+print("\nProcess is finished")
 cv2.imshow('', result)
 key = cv2.waitKey()
 cv2.destroyAllWindows()
