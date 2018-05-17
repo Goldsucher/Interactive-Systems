@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-import sys
 
 ###############################################################
 #
@@ -8,14 +7,9 @@ import sys
 #
 ###############################################################
 
-# https://github.com/hughesj919/HarrisCorner/blob/master/Corners.py
-
 # Given three very simple images
 
 # 3x3 edge image
-#  0 1 1
-#  0 1 1
-#  0 1 1
 edge = np.zeros((3, 3, 1), np.float32)
 edge[1][0] = 255.0
 edge[1][1] = 255.0
@@ -25,9 +19,6 @@ edge[2][1] = 255.0
 edge[2][2] = 255.0
 
 # 3x3 corner image
-# 0 0 0
-# 1 1 0
-# 1 1 0
 corner = np.zeros((3, 3, 1), np.float32)
 corner[0][0] = 0.0
 corner[0][1] = 0.0
@@ -43,10 +34,7 @@ corner[2][2] = 0.0
 flat = np.zeros((3, 3, 1), np.float32)
 
 # choose which one to use to compute eigenvector / eigenvalues
-# img = edge
 for key, img in {'edge': edge, 'corner': corner, 'flat': flat}.items():
-    # print("img\n", img)
-
     # simple gradient extraction
     k = np.matrix([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
     # print("k\n", k)
@@ -79,11 +67,8 @@ for key, img in {'edge': edge, 'corner': corner, 'flat': flat}.items():
     w, v = np.linalg.eigvals(eigMat)
 
     # out and show the image
-    # print("matrix:", eigMat, '\n')
     print("img: ", key, " eigvalues: ", w, "eigenvecv: ", v)
     # scaling_factor = 100
     # img = cv2.resize(img, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
     # cv2.imshow('img', img)
     # cv2.waitKey(0)
-
-
