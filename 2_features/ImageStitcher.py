@@ -2,8 +2,6 @@ import numpy as np
 import cv2
 
 
-# complete the class ImageStitcher
-
 class ImageStitcher:
     """A simple class for stitching two images. The class expects two color images"""
 
@@ -25,6 +23,7 @@ class ImageStitcher:
         # compute the raw matches using a Bruteforce matcher that
         # compares image descriptors/feature vectors in high-dimensional space
         # by employing K-Nearest-Neighbor match (more next course)
+
         bf = cv2.BFMatcher()
         rawmatches = bf.knnMatch(descriptors1, descriptors2, 2)
         matches = []
@@ -37,7 +36,7 @@ class ImageStitcher:
             if len(m) == 2 and m[0].distance < m[1].distance * self.distanceRatio:
                 matches.append((m[0].trainIdx, m[0].queryIdx))
 
-        print "matches:", len(matches)
+        print("matches:", len(matches))
         # we need to compute a homography - more next course
         # computing a homography requires at least 4 matches
         if len(matches) > 4:
@@ -50,7 +49,7 @@ class ImageStitcher:
 
             # we return the corresponding perspective transform and some
             # necessary status object + the used matches
-            return (H, status, matches)
+            return H, status, matches
 
         # otherwise, no homograpy could be computed
         return None
@@ -91,31 +90,63 @@ class ImageStitcher:
 
     def stitch_to_panorama(self):
 
+        # cv2.namedWindow('Aufgabe 2.2')
+        matchList = []
+        panoramaImg = []
+
         # YOUR CODE HERE
         # 1. create feature extraction
-        sift = cv2.xfeatures2d.SIFT_create()
-
         # 2. detect and compute keypoints and descriptors for the first image
-        kp = sift.detect(img, None)
 
         # 3. loop through the remaining images and detect and compute keypoints + descriptors
 
-        # 4. match features between the two images consecutive images and check if the
-        # result might be None.
+        current_img = None
+        for path in self.imagelist:
 
-        # if not enough matches were found we can't stitch
-        # and we break here
+            last_img = current_img
 
-        # The result contains matches and a status object that can be used to draw the matches.
-        # Additionally (and more importantly it contains the transformation matrix (homography matrix)
-        # commonly refered to as H. That can and should be used with cv2.warpPerspective to transform
-        # consecutive images such that they fit together.
-        # make sure the size of the new (warped) image is large enough to support the overlap
+            current_img = cv2.imread(path)
+            sift = cv2.xfeatures2d.SIFT_create()
+            current_kp, current_desc = sift.detectAndCompute(current_img, None)
 
-        # the resulting image might be too wide (lot of black areas on the right) because there is a
-        # substantial overlap
+            if last_img is None:
+                continue    # skip first img
+            else:
+                last_kp, last_desc = sift.detectAndCompute(last_img, None)
 
-        # 5. create a new image using draw_matches containing the visualized matches
+            # 4. match features between the two images consecutive images and check if the
+            # result might be None.
+            H, status, matches = self.match_keypoints(last_kp, current_kp, last_desc, current_desc)
+
+            # if not enough matches were found we can't stitch
+            # and we break here
+            if H is None:
+                print("break here")
+                break
+
+            if len(matches) < 200:
+                continue
+
+            # The result contains matches and a status object that can be used to draw the matches.
+            # Additionally (and more importantly it contains the transformation matrix (homography matrix)
+            # commonly refered to as H. That can and should be used with cv2.warpPerspective to transform
+            # consecutive images such that they fit together.
+            # make sure the size of the new (warped) image is large enough to support the overlap
+            # the resulting image might be too wide (lot of black areas on the right) because there is a
+            # substantial overlap
+            result = cv2.warpPerspective(last_img, H, (last_img.shape[1] + current_img.shape[1], last_img.shape[0]))
+
+            result[0:current_img.shape[0], 0:current_img.shape[1]] = current_img
+
+
+            # 5. create a new image using draw_matches containing the visualized matches
+            img_with_matches = self.draw_matches(last_img, current_img, last_kp, current_kp, matches, status)
+            matchList.append(img_with_matches)
+
+            current_img = result
+            panoramaImg.append(result)
+
+
 
         # 6. return the resulting stitched image
-        return (matchList, panoramaImg)
+        return matchList, panoramaImg
