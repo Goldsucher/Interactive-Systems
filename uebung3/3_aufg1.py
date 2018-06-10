@@ -83,7 +83,7 @@ def draw_matches(img1, img2, kp1, kp2, matches, status):
 
 cap = cv2.VideoCapture(0)
 
-#initialize marker imgage
+#initialize marker image
 img_marker_color = cv2.imread('resources/images/marker.jpg', 1)
 img_marker_grey = cv2.cvtColor(img_marker_color, cv2.COLOR_BGR2GRAY)
 
@@ -94,10 +94,9 @@ sift = cv2.xfeatures2d.SIFT_create()
 kp_marker, descr_marker = sift.detectAndCompute(img_marker_grey, None)
 
 while(True):
+
     # Capture frame-by-frame
     ret, img_cam_color = cap.read()
-
-    # Our operations on the frame come here
     img_cam_grey = cv2.cvtColor(img_cam_color, cv2.COLOR_BGR2GRAY)
 
     key = cv2.waitKey(50)
@@ -114,7 +113,7 @@ while(True):
         if status is not None and matches is not None:
             # draw matches
             img_result = draw_matches(img_marker_color, img_cam_color, kp_marker, kp_cam, matches, status)
-        elif matches is None :
+        elif matches is None:
             print("No matches were found. Program was terminated")
             break
         elif status is None:
@@ -124,14 +123,14 @@ while(True):
     elif kp_cam is None :
         print("No keypoints were found for cam frame . Program was terminated")
         break
-    elif desr_cam is None:
+    elif descr_cam is None:
         print("No descriptors were found for cam frame. Program was terminated")
         break
 
-        #show result
-        cv2.imshow('Marker / Cam', img_result)
+    #show result
+    cv2.imshow('Marker / Cam', img_result)
 
 
-# When everything done, release the capture
+# Destroy Windows and exit the program
 cap.release()
 cv2.destroyAllWindows()
