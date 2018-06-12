@@ -23,7 +23,7 @@ def create_keypoints(w, h):
 
     # YOUR CODE HERE
     radius = int(keypoint_size/2)
-    step = radius*2
+    step = keypoint_size
 
     print("building grid...")
     for cx in range(radius, w, step):
