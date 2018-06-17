@@ -41,7 +41,7 @@ def update_mean(img, clustermask):
         # print("current_cluster_centers[k] new: ", current_cluster_centers[k])
 
 
-def assign_to_current_mean(img, result, clustermask):
+def assign_to_current_mean(img, result, clustermask, mode):
     """The function expects the img, the resulting image and a clustermask.
     After each call the pixels in result should contain a cluster_color corresponding to the cluster
     it is assigned to. clustermask contains the cluster id (int [0...num_clusters]
@@ -54,8 +54,10 @@ def assign_to_current_mean(img, result, clustermask):
             pixel = img[x][y]
             cluster_color = current_cluster_centers[clustermask[x][y][0]]
             overall_dist += distance(pixel, cluster_color)
-            result[x][y] = cluster_color                            # Farbquantisierung
-            result[x][y] = cluster_colors[clustermask[x][y][0]]     # k-means basiertes Farbclusterin
+            if mode == "quantization":
+                result[x][y] = cluster_color                            # Farbquantisierung
+            else:
+                result[x][y] = cluster_colors[clustermask[x][y][0]]     # k-means basiertes Farbclusterin
 
     return overall_dist
 
@@ -64,12 +66,12 @@ def initialize(img):
     """inittialize the current_cluster_centers array for each cluster with a random pixel position"""
     # YOUR CODE HERE
     for i in range(0, numclusters):
-        rnd_x = np.random.randint(0, high=w1 + 1)
-        rnd_y = np.random.randint(0, high=h1 + 1)
+        rnd_x = np.random.randint(0, high=w1)
+        rnd_y = np.random.randint(0, high=h1)
         current_cluster_centers[i] = img[rnd_x][rnd_y]
 
 
-def kmeans(img):
+def kmeans(img, mode):
     """Main k-means function iterating over max_iterations and stopping if
     the error rate of change is less then 2% for consecutive iterations, i.e. the
     algorithm converges. In our case the overall error might go up and down a little
@@ -106,7 +108,7 @@ def kmeans(img):
 
         change_rate = changes / (h1 * w1)
         print("change_rate: {:.4f}".format(change_rate), " ", end='')
-        over_all_error = assign_to_current_mean(img, result, clustermask)
+        over_all_error = assign_to_current_mean(img, result, clustermask, mode)
         print("over all error: {0:.0f}".format(over_all_error))
         if change_rate <= max_change_rate:
             break
@@ -115,43 +117,73 @@ def kmeans(img):
     return result
 
 
-# num of cluster
-numclusters = 6
 # corresponding colors for each cluster
 cluster_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [0, 255, 255], [255, 255, 255], [0, 0, 0], [128, 128, 128]]
-# initialize current cluster centers (i.e. the pixels that represent a cluster center)
-current_cluster_centers = np.zeros((numclusters, 1, 3), np.float32)
 
-# load image
-imgraw = cv2.imread('./resources/images/Lenna.png')
-# imgraw = cv2.imread('./resources/images/Lenna_RGB.png')
-# imgraw = cv2.imread('./resources/images/Lenna_LAB.png')
-# img_loaded = cv2.imread('./resources/images/Lenna_HSV.png')
-scaling_factor = 0.5
-# imgraw = cv2.resize(imgraw, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
-# print("img read.")
+results = []
+todo = [
+    ['./resources/images/Lenna_LAB.png', 3, 'clustering'],
+    ['./resources/images/Lenna_LAB.png', 6, 'clustering'],
+    ['./resources/images/Lenna_HSV.png', 3, 'clustering'],
+    ['./resources/images/Lenna_HSV.png', 6, 'clustering'],
+    ['./resources/images/Lenna_RGB.png', 3, 'clustering'],
+    ['./resources/images/Lenna_RGB.png', 6, 'clustering'],
+    ['./resources/images/Lenna_RGB.png', 0, 'quantization'],
+    ['./resources/images/Lenna_RGB.png', 4, 'quantization'],
+    ['./resources/images/Lenna_RGB.png', 16, 'quantization'],
+    ['./resources/images/Lenna_RGB.png', 32, 'quantization'],
+    ['./resources/images/Lenna_RGB.png', 64, 'quantization']
+]
+for img in todo:
 
-# compare different color spaces and their result for clustering
-# YOUR CODE HERE or keep going with loaded RGB colorspace img = imgraw
-image = imgraw
-h1, w1 = image.shape[:2]
-# print("h1:", h1, "w1: ", w1)
-initialize(image)
-# print("init done.");
+    print("calc img", img[0], "with", img[1], "cluster...")
+    # sys.exit()
 
-# execute k-means over the image
-# it returns a result image where each pixel is color with one of the cluster_colors
-# depending on its cluster assignment
-res = kmeans(image)
-# print("kmeans done")
+    # num of cluster
+    numclusters = img[1]
 
-h1, w1 = res.shape[:2]
-h2, w2 = image.shape[:2]
-vis = np.zeros((max(h1, h2), w1 + w2, 3), np.uint8)
-vis[:h1, :w1] = res
-vis[:h2, w1:w1 + w2] = imgraw
-# print("vis done")
+    # initialize current cluster centers (i.e. the pixels that represent a cluster center)
+    current_cluster_centers = np.zeros((numclusters, 1, 3), np.float32)
 
-cv2.imshow("Color-based Segmentation Kmeans-Clustering", vis)
+    imgraw = cv2.imread(img[0])
+    scaling_factor = 0.5
+    imgraw = cv2.resize(imgraw, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+
+    # compare different color spaces and their result for clustering
+    # YOUR CODE HERE or keep going with loaded RGB colorspace img = imgraw
+    image = imgraw
+    h1, w1 = image.shape[:2]
+    initialize(image)
+
+    # execute k-means over the image
+    # it returns a result image where each pixel is color with one of the cluster_colors
+    # depending on its cluster assignment
+    if numclusters > 0:
+        res = kmeans(image, img[2])
+
+        h1, w1 = res.shape[:2]
+        h2, w2 = image.shape[:2]
+        vis = np.zeros((max(h1, h2), w1 + w2, 3), np.uint8)
+        vis[:h1, :w1] = res
+        vis[:h2, w1:w1 + w2] = imgraw
+
+    if numclusters == 0:
+        vis = cv2.resize(imgraw, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+    if numclusters in [4, 16, 32, 64]:
+        vis = cv2.resize(res, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+
+    results.append(vis)
+
+
+line0 = np.concatenate((results[0], results[1]), axis=1)
+line1 = np.concatenate((results[2], results[3]), axis=1)
+line2 = np.concatenate((results[4], results[5]), axis=1)
+line3 = np.concatenate((results[6], results[7], results[8], results[9], results[10]), axis=1)
+scaling_factor = line2.shape[1] / line3.shape[1]
+line3 = cv2.resize(line3, None, fx=scaling_factor, fy=scaling_factor, interpolation=cv2.INTER_AREA)
+
+result = np.concatenate((line0, line1, line2, line3), axis=0)
+
+cv2.imshow("Color-based Segmentation / Kmeans-Clustering", result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
