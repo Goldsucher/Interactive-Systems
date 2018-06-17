@@ -16,12 +16,11 @@ bfMatcher = cv2.BFMatcher()
 
 # extract marker descriptors
 img_marker_color = cv2.imread('resources/images/marker.jpg', 1)
-img_marker_grey = cv2.cvtColor(img_marker_color, cv2.COLOR_BGR2GRAY)
 kp_marker, descr_marker = sift.detectAndCompute(img_marker_color, None)
 
 def render_virtual_object(img, x_start, y_start, x_end, y_end, quad):
     # define vertices, edges and colors of your 3D object, e.g. cube
-    z = 0.3
+    z = 1
     vertices = np.float32([[0, 0, 0],
                            [1, 0, 0],
                            [1, 1, 0],
@@ -36,17 +35,17 @@ def render_virtual_object(img, x_start, y_start, x_end, y_end, quad):
              (2, 3),
              (3, 0),
 
-             (0, 4),
-             (1, 5),
-             (2, 6),
-             (3, 7),
-
              (4, 5),
              (5, 6),
              (6, 7),
-             (7, 4)]
+             (7, 4),
 
-    color_lines = (150, 0, 0)
+             (0, 4),
+             (1, 5),
+             (2, 6),
+             (3, 7)]
+
+    color_lines = (0, 0, 0)
 
     # define quad plane in 3D coordinates with z = 0
     quad_3d = np.float32([[x_start, y_start, 0], [x_end, y_start, 0],
@@ -60,9 +59,7 @@ def render_virtual_object(img, x_start, y_start, x_end, y_end, quad):
 
     # find object pose from 3D-2D point correspondences of the 3d quad using Levenberg-Marquardt optimization
     # in order to work we need K (given above and YOUR distortion coefficients from Assignment 2 (camera calibration))
-    # [[ 0.06489938  0.2053827   0.00292677  0.00300208 -1.12425709]]
     dist_coef = np.array([0.06489938,  0.2053827,   0.00292677,  0.00300208, -1.12425709])
-    # dist_coef = None
 
     # compute extrinsic camera parameters using cv2.solvePnP
     _, rvec, tvec = cv2.solvePnP(quad_3d, quad, K, dist_coef, flags=cv2.SOLVEPNP_ITERATIVE)
@@ -82,7 +79,7 @@ def render_virtual_object(img, x_start, y_start, x_end, y_end, quad):
     # render edges
     for i, j in edges:
         (x_start, y_start), (x_end, y_end) = verts[i], verts[j]
-        cv2.line(img, (int(x_start), int(y_start)), (int(x_end), int(y_end)), color_lines, 2)
+        cv2.line(img, (int(x_start), int(y_start)), (int(x_end), int(y_end)), color_lines, 4)
 
 cap = cv2.VideoCapture(0)
 cv2.namedWindow('Interactive Systems: AR Tracking')
@@ -101,7 +98,8 @@ while True:
     if descr_marker is None or descr_cam is None:
         print("No Descriptor found")
         continue
-    matches = bfMatcher.knnMatch(descr_marker, descr_cam, 2)
+
+    matches = bfMatcher.knnMatch(descr_cam, descr_marker, 2)
 
     # filter matches by distance [Lowe2004]
     matches = [match[0] for match in matches if len(match) == 2 and
@@ -139,19 +137,21 @@ while True:
         continue
 
     # take only inliers - mask of Outlier/Inlier
-    # p0, p1 = p0[mask], p1[mask]
+    p0, p1 = p0[mask], p1[mask]
+
     # get the size of the marker and form a quad in pixel coords np float array using w/h as the corner points
-    h1, w1 = img_marker_grey.shape[:2]
+    h1, w1 = img_marker_color.shape[:2]
     quad = [np.array([0, 0], dtype=np.float32),
-            np.array([0, h1], dtype=np.float32),
+            np.array([h1, 0], dtype=np.float32),
             np.array([w1, h1], dtype=np.float32),
-            np.array([w1, 0], dtype=np.float32),  # bottom left
-            ]
+            np.array([0, w1], dtype=np.float32),]
+
     print(quad)
 
     # perspectiveTransform needs a 3-dimensional array
     quad = np.array([quad])
     quad_transformed = cv2.perspectiveTransform(quad, H)
+
     # transform back to 2D array
     quad = quad_transformed[0]
 
@@ -159,7 +159,7 @@ while True:
     cv2.polylines(frame, [quad.astype(dtype=np.int)], isClosed=True, color=(0, 0, 255), thickness=2)
     for fp1 in p1:
         fp1 = fp1.astype(np.int)
-        cv2.circle(frame, (fp1[0], fp1[1]), 10, (0, 255, 0))
+        cv2.circle(frame, (fp1[0], fp1[1]), 10, (0, 0, 255))
 
     # render virtual object on top of quad
     render_virtual_object(frame, 0, 0, h1, w1, quad)
