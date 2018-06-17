@@ -1,0 +1,25 @@
+# Blatt 3 "3_tracking"
+# Aufgabe 4: Homography und Pose Estimation
+# Steffen Burlefinger (859077)
+
+
+Was passiert, wenn Sie das Distanz-Filtering aus dem gegebenen Sourcecode nicht nutzen?
+    cv2.line(img, (int(x_start), int(y_start)), (int(x_end), int(y_end)), color_lines, 2)
+	OverflowError: Python int too large to convert to C long
+
+	Durch die Entfernung der Distanzfilterung werden Matches genutzt, die zufällig mit Keypoints des Marker-Bildes übereinstimmen.
+
+-----
+
+Wie sieht die OpenCV Datenstruktur der Matches aus?
+    Es ist ein Array mit Matches, wobei ein Match folgendermaßen beschrieben wird:
+       DMatch.distance - Distance between descriptors. The lower, the better it is.
+	   DMatch.trainIdx - Index of the descriptor in train descriptors (first images - marker.jpg)
+	   DMatch.queryIdx - Index of the descriptor in query descriptors (second images - camera image)
+	   DMatch.imgIdx - Index of the train image.
+
+-----
+
+Was passiert wenn Sie den Thresholdwert in cv2.findHomography ändern und warum?
+    Ein zu hoher Thresholdwert (Werte über 15) sorgt für Abstürze oder dass der Quader wackelt, weil zu
+    viele Punkte also Inliner betrachet werden und dadurch der Ransac-Treshold zu groß wird.
