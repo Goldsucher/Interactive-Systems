@@ -90,6 +90,7 @@ for query_img_path in ['./resources/images/database/query_face.jpg',
         result = img_left
     else:
         result = np.concatenate((result, img_left), axis=0)
+
 print("\nProcess is finished")
 cv2.imshow('', result)
 key = cv2.waitKey()
