@@ -15,12 +15,14 @@ from sklearn import svm
 ############################################################
 
 def create_keypoints(w, h):
+
     keypoints = []
     keypoint_size = 15   # has to be odd
 
     radius = int(keypoint_size/2)
     step = radius*2
 
+    print("Creating keypoints: kp-size = " + str(keypoint_size) + "px; kp-numbers = " + str(w) + "x" + str(h))
     for cx in range(radius, w, step):
         for cy in range(radius, h, step):
             keypoints.append(cv2.KeyPoint(cx, cy, keypoint_size))
