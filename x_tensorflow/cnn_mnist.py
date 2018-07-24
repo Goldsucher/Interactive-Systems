@@ -22,7 +22,6 @@ import tensorflow as tf
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
-
 def cnn_model_fn(features, labels, mode):
   """Model function for CNN."""
   # Input Layer
@@ -156,5 +155,9 @@ def main(unused_argv):
 
 
 if __name__ == "__main__":
+  sess = tf.Session()
   tf.app.run()
+
+  saver = tf.train.Saver()
+  saver.save(sess, 'model/final_model.ckpt')
 
