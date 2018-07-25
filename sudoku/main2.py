@@ -2,8 +2,10 @@ import numpy as np
 import cv2
 import operator
 import pytesseract
+import sys
+import time
 
-#https://medium.com/@neshpatel/solving-sudoku-part-ii-9a7019d196a2
+CONST_IMAGE_PATH = 'test3.jpg'
 
 
 def pre_process_image(img, skip_dilate=False):
@@ -228,6 +230,40 @@ def get_digits(img, squares, size):
     return digits
 
 
+def sortDigits(digits):
+    sortedDigits = []
+    nine = 9
+    l = 0
+    row_index = 0
+
+    for i in range(9):
+        for j in range(9):
+            sortedDigits.append(digits[l * nine + row_index])
+            l += 1
+            i += 1
+        l = 0
+        row_index += 1
+
+    return sortedDigits
+
+def recognizeDigitsFromImages(digits):
+    recognized_digits = np.zeros((9, 9))
+    digit_index = 0
+    for i in range(9):
+        for j in range(9):
+            if not isEmpty(digits[digit_index], 100):
+                img = cv2.bitwise_not(digits[digit_index])
+                number = pytesseract.image_to_string(img, config="--psm 13")
+                recognized_digits[i][j] = number
+            elif isEmpty(digits[digit_index], 100):
+                recognized_digits[i][j] = 0
+
+            digit_index += 1
+
+    return recognized_digits
+
+
+
 def isEmpty(segment, threshold):
     c = 0
     for x in range(0, len(segment)):
@@ -236,46 +272,68 @@ def isEmpty(segment, threshold):
                 c = c + 1
     return True if c < threshold else False
 
-img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
+def findNextCellToFill(grid, i, j):
+        for x in range(i, 9):
+            for y in range(j, 9):
+                if grid[x][y] == 0:
+                    return x, y
+        for x in range(0, 9):
+            for y in range(0, 9):
+                if grid[x][y] == 0:
+                    return x, y
+        return -1, -1
+
+
+def isValid(grid, i, j, e):
+    rowOk = all([e != grid[i][x] for x in range(9)])
+    if rowOk:
+        columnOk = all([e != grid[x][j] for x in range(9)])
+        if columnOk:
+            # finding the top left x,y co-ordinates of the section containing the i,j cell
+            secTopX, secTopY = 3 * (i // 3), 3 * (j // 3)  # floored quotient should be used here.
+            for x in range(secTopX, secTopX + 3):
+                for y in range(secTopY, secTopY + 3):
+                    if grid[x][y] == e:
+                        return False
+            return True
+    return False
+
+
+def solveSudoku(grid, i=0, j=0):
+    i, j = findNextCellToFill(grid, i, j)
+    if i == -1:
+        return True
+    for e in range(1, 10):
+        if isValid(grid, i, j, e):
+            grid[i][j] = e
+            if solveSudoku(grid, i, j):
+                return True
+            # Undo the current cell for backtracking
+            grid[i][j] = 0
+    return False
+
+
+print("Loading Image " + CONST_IMAGE_PATH + "....")
+img = cv2.imread(CONST_IMAGE_PATH , cv2.IMREAD_GRAYSCALE)
+print("Pre-Processing Image ....")
 processed = pre_process_image(img)
+time.sleep(2)
+print("Finding sudoku field in image ....")
 corners = find_corners_of_largest_polygon(processed)
+time.sleep(2)
+print("Cropping sudoku field from image ....")
+time.sleep(2)
 cropped = crop_and_warp(img, corners)
+print("Laying a grid over the field ....")
 squares = infer_grid(cropped)
-digits = get_digits(cropped, squares, 128)
-
-x = 0
-y = 0
-result = []
-size = len(digits)
-
-tmp = []
-nine = 9
-l = 0
-row_index = 0
-
-for i in range(9):
-    for j in range(9):
-        tmp.append(digits[l*nine+row_index])
-        l += 1
-        i += 1
-    l = 0
-    row_index += 1
-
-digits = tmp
-
-stringOfDigits = ""
-for i in range(0, len(digits)):
-    if not isEmpty(digits[i], 100):
-        img = cv2.bitwise_not(digits[i])
-        number = pytesseract.image_to_string(img, config="--psm 13")
-        stringOfDigits = stringOfDigits + number
-    elif isEmpty(digits[i], 100):
-        stringOfDigits = stringOfDigits + str(0)
-
-
-print(stringOfDigits)
-exit()
-
-# cv2.imshow("BLA", img)
-# cv2.waitKey(0)
-cv2.destroyAllWindows()
+time.sleep(2)
+print("Exctracting Digits ....")
+digits = get_digits(cropped, squares, 28)
+sorted_digits = sortDigits(digits)
+print("Recognizing Digits....")
+recognized_digits = recognizeDigitsFromImages(sorted_digits)
+print(recognized_digits)
+print("Solving sudoku .....")
+solveSudoku(recognized_digits)
+time.sleep(1)
+print(recognized_digits)
