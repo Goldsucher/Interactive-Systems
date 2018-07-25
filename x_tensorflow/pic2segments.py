@@ -238,7 +238,7 @@ processed = pre_process_image(img)
 corners = find_corners_of_largest_polygon(processed)
 cropped = crop_and_warp(img, corners)
 squares = infer_grid(cropped)
-digits = get_digits(cropped, squares, 128)
+digits = get_digits(cropped, squares, 28)
 
 x = 0
 y = 0
@@ -261,7 +261,10 @@ def isEmpty(segment, threshold):
 
 for i in range(0, len(digits)):
     if not isEmpty(digits[i], 100):
-        img = cv2.bitwise_not(digits[i])
+        #img = cv2.bitwise_not(digits[i])
+        img = digits[i]
+        fn = "field_"+str(i)+".png"
+        cv2.imwrite(fn, img)
         number = pytesseract.image_to_string(img, config="--psm 13")
         # cv2.imshow("BLA", img)
         # cv2.waitKey(0)
