@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import operator
+import pytesseract
 
 #https://medium.com/@neshpatel/solving-sudoku-part-ii-9a7019d196a2
 
@@ -227,20 +228,54 @@ def get_digits(img, squares, size):
     return digits
 
 
-img = cv2.imread('test3.jpg', cv2.IMREAD_GRAYSCALE)
+def isEmpty(segment, threshold):
+    c = 0
+    for x in range(0, len(segment)):
+        for y in range(0, len(segment[x])):
+            if segment[x][y] > 0:
+                c = c + 1
+    return True if c < threshold else False
+
+img = cv2.imread('test.jpg', cv2.IMREAD_GRAYSCALE)
 processed = pre_process_image(img)
 corners = find_corners_of_largest_polygon(processed)
 cropped = crop_and_warp(img, corners)
 squares = infer_grid(cropped)
-digits = get_digits(cropped, squares, 28)
+digits = get_digits(cropped, squares, 128)
 
 x = 0
 y = 0
 result = []
-#size  = len(digits)
-#print(size)
+size = len(digits)
+
+tmp = []
+nine = 9
+l = 0
+row_index = 0
+
+for i in range(9):
+    for j in range(9):
+        tmp.append(digits[l*nine+row_index])
+        l += 1
+        i += 1
+    l = 0
+    row_index += 1
+
+digits = tmp
+
+stringOfDigits = ""
+for i in range(0, len(digits)):
+    if not isEmpty(digits[i], 100):
+        img = cv2.bitwise_not(digits[i])
+        number = pytesseract.image_to_string(img, config="--psm 13")
+        stringOfDigits = stringOfDigits + number
+    elif isEmpty(digits[i], 100):
+        stringOfDigits = stringOfDigits + str(0)
 
 
-cv2.imshow("BLA", result)
-cv2.waitKey(0)
+print(stringOfDigits)
+exit()
+
+# cv2.imshow("BLA", img)
+# cv2.waitKey(0)
 cv2.destroyAllWindows()
