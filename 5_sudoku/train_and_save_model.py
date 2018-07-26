@@ -1,3 +1,5 @@
+import numpy as np
+from utils import plot_utils
 from keras.utils import np_utils
 from models.cnnmodel import CNNModel
 from keras.datasets import mnist
@@ -44,3 +46,6 @@ print('Test accuracy:', score[1])
 weights_fn = "models/weights" + str(nb_epoch) + ".h5"
 print("saving model to "+weights_fn)
 model.save_weights(weights_fn)
+
+plot_utils.plot_model_history(history)
+plot_utils.plot_result_examples(model, X_test, y_test, img_rows, img_cols)
