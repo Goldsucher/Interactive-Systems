@@ -2,8 +2,10 @@ from keras.utils import np_utils
 from models.cnnmodel import CNNModel
 from keras.datasets import mnist
 
+# load handwritten digits
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
+# copy from 4_ml/4_ml_2.py
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 X_train /= 255
@@ -38,7 +40,7 @@ score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test score:', score[0])
 print('Test accuracy:', score[1])
 
-# save model
+# new: save model
 weights_fn = "models/weights" + str(nb_epoch) + ".h5"
 print("saving model to "+weights_fn)
 model.save_weights(weights_fn)

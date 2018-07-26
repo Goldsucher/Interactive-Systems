@@ -5,16 +5,16 @@ import pytesseract
 from models.cnnmodel import CNNModel
 
 # some more details:
-#   https://goo.gl/bSnReA
 #   https://goo.gl/6U3VP2
 #   https://goo.gl/BV45xn
 
 CONST_IMAGE_PATH = 'field001.jpeg'
+WEIGHT = 'models/weights1.h5'
 
 
 def load_model():
     model = CNNModel.load_model(10)
-    model.load_weights('models/weights0.h5')
+    model.load_weights(WEIGHT)
 
     return model
 
@@ -278,11 +278,12 @@ def recognizeDigitsFromImages(digits):
                 if ki == number:
                     rights = rights + 1
                 else:
-                    cv2.imwrite("file_i"+str(i)+"j"+str(j)+".png", img)
+                    # cv2.imwrite("file_i"+str(i)+"j"+str(j)+".png", img)
                     try:
                         val = int(number)
                     except ValueError:
-                        number = 0
+                        # number = 0
+                        number = ki
                 recognized_digits[i][j] = number
             elif isEmpty(digits[digit_index], 100):
                 recognized_digits[i][j] = 0
